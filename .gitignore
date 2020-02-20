@@ -1,0 +1,6 @@
+__pycache__
+.doit.db.db
+.idea/
+installer/*.exe
+.DS_Store
+.vagrant/
