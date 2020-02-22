@@ -1,0 +1,58 @@
+{
+  "builders": [
+    {
+      "type": "virtualbox-ovf",
+      "source_path": "/Users/ulhas/Downloads/MSEdge-Win10/MSEdge-Win10.ovf",
+      "headless": true,
+      "boot_wait": "1m",
+      "vm_name": "windows_10",
+      "communicator": "winrm",
+      "winrm_username": "IEUser",
+      "winrm_password": "Passw0rd!",
+      "winrm_timeout": "10m",
+      "guest_additions_mode": "disable",
+      "shutdown_timeout": "2h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "floppy_files": [
+        "./scripts/base_setup.ps1"
+      ],
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "4096"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ],
+        ["modifyvm", "{{.Name}}", "--vram", "48"],
+        ["modifyvm", "{{.Name}}", "--audio", "none"],
+        ["modifyvm", "{{.Name}}", "--natpf1", "winrm,tcp,127.0.0.1,5985,,5985"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+        "type": "powershell",
+        "inline": [
+          "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))"
+        ]
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "choco install googlechrome -y"
+      ]
+    },
+    {
+        "scripts": [
+          "./scripts/Download_TD2.ps1"
+        ],
+        "type": "powershell"
+      }
+  ]
+}
