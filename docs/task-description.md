@@ -1,4 +1,4 @@
-#Evaluation task
+# Evaluation task
 
 The main goal is to automate testing of TimeDoctor 2 desktop application (silent) Windows 10.
 The test should be repeatable. You must also emulate keyboard and mouse actions throughout

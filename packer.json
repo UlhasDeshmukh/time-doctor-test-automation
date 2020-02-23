@@ -13,9 +13,6 @@
       "guest_additions_mode": "disable",
       "shutdown_timeout": "2h",
       "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
-      "floppy_files": [
-        "./scripts/base_setup.ps1"
-      ],
       "vboxmanage": [
         [
           "modifyvm",
