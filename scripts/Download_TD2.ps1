@@ -1,13 +1,15 @@
-# Invoke-WebRequest https://s3.amazonaws.com/sfproc-downloads/3.0.52/windows/bitrock/timedoctor2-setup-3.0.52-windows.exe -OutFile C:/Users/IEUser/timedoctor2-setup-3.0.52-windows.exe
+# Disable-UAC
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f
 
-[string] $isoFile = "timedoctor2-setup-3.0.52-windows.exe"
-[string] $sourceUrl = "https://s3.amazonaws.com/sfproc-downloads/3.0.52/windows/bitrock/timedoctor2-setup-3.0.52-windows.exe"
-[string] $destPath = "C:/Users/IEUser/$isoFile"
+[string] $sourceUrl = "https://kwc5w69wa3.execute-api.us-east-1.amazonaws.com/production/msi-filename-redirect?hostname=app.staff.com&companyId=XlVFRsuBAgAEU-yp"
+[string] $destPath = "C:/Users/IEUser/installer"
+
+If(!(test-path $destPath))
+{
+	New-Item -ItemType Directory -Force -Path $destPath
+}
 
 Write-Host "Copying Exe file to local file system"
 Invoke-WebRequest -Uri $sourceUrl -OutFile $destPath
 
-Write-Host "Exe file downloaded"
-
-# Disable-UAC
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f
+Write-Host "msi file downloaded"

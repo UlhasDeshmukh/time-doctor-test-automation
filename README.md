@@ -44,4 +44,5 @@ Find task details [here](/docs/task-description.md)
 * https://www.virtualbox.org/manual/UserManual.html#vboxmanage-cmd-overview
 * https://en.jeffprod.com/blog/2019/automating-tasks-in-a-virtualized-os/
 * http://ramblings.narrabilis.com/node/374
+* https://www.advancedinstaller.com/user-guide/msiexec.html
  

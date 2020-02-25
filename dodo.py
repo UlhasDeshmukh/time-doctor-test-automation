@@ -7,11 +7,16 @@ import time
 vm_name = 'windows_10'
 td_email = ''
 td_password = "xyz@123"
+td_companyid = ''
+td_user = ''
+td_token = ''
 
 
 def task_create_company():
 
     def create_com():
+        global td_companyid, td_user, td_token
+
         url = "https://api2.timedoctor.com:443/api/1.0/register/signup"
         ts = str(datetime.datetime.now().timestamp()).split(".")[0]
         company_name = "qa-automation-ulhas-" + ts + "@timedocrtor.dev"
@@ -21,7 +26,7 @@ def task_create_company():
             "email": td_email,
             "password": td_password,
             "company": "qa-automation-ulhas",
-            "trackingMode": "",
+            "trackingMode": "silent",
             "timezone": "",
             "referrer": "",
             "pricingPlan": "",
@@ -38,8 +43,31 @@ def task_create_company():
         }
 
         r = requests.post(url=url, data=json.dumps(payload), headers=headers)
-        print(payload)
+
+        output = json.loads(r.text)
         print(r.text.encode('utf8'))
+        print(payload)
+
+        td_companyid = output['data']['companyId']
+        td_user = output['data']['userId']
+        td_token = output['data']['token']
+
+        print(td_token)
+        print(td_companyid)
+        print(td_user)
+
+        with open('./scripts/Download_TD2.ps1', 'w') as file:  # Use file to refer to the file object
+            file.write("# Disable-UAC\n")
+            file.write('reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" '
+                       '/v EnableLUA /t REG_DWORD /d 0 /f\n\n')
+            file.write('[string] $sourceUrl = "https://kwc5w69wa3.execute-api.us-east-1.amazonaws.com/production'
+                       '/msi-filename-redirect?hostname=app.staff.com&companyId={0}"\n'.format(td_companyid))
+            file.write('[string] $destPath = "C:/Users/IEUser/installer"\n\n')
+            file.write('If(!(test-path $destPath))\n')
+            file.write('{\n\tNew-Item -ItemType Directory -Force -Path $destPath\n}\n\n')
+            file.write('Write-Host "Copying Exe file to local file system"\n')
+            file.write('Invoke-WebRequest -Uri $sourceUrl -OutFile $destPath\n\n')
+            file.write('Write-Host "msi file downloaded"\n')
 
     return {
         'actions': [create_com],
@@ -51,7 +79,7 @@ def task_create_company():
 # #
 # # Use the force flag to delete it prior to building.
 #
-#
+
 def task_packer_build():
     def build_packer_json():
         return "packer build -only virtualbox-ovf packer.json"
@@ -105,8 +133,19 @@ def task_copy_files():
              " --username IEUser --password Passw0rd! ".format(vm_name)
         return cmd_string
 
+    def copy_install_td_file():
+        cmd_string = "vboxmanage guestcontrol '{0}' copyto ./scripts/install_td.bat 'C:\\Users\\IEUser\\installer' " \
+             " --username IEUser --password Passw0rd! ".format(vm_name)
+        return cmd_string
+
+    def copy_uninstall_td_file():
+        cmd_string = "vboxmanage guestcontrol '{0}' copyto ./scripts/uninstall_td.bat 'C:\\Users\\IEUser\\installer' " \
+             " --username IEUser --password Passw0rd! ".format(vm_name)
+        return cmd_string
+
     return {
-          'actions': [CmdAction(copy_lock_file), CmdAction(copy_enable_nw_file), CmdAction(copy_disable_nw_file)],
+          'actions': [CmdAction(copy_lock_file), CmdAction(copy_enable_nw_file), CmdAction(copy_disable_nw_file),
+                      CmdAction(copy_install_td_file), CmdAction(copy_uninstall_td_file)],
           'verbosity': 2,
     }
 
@@ -116,7 +155,7 @@ def task_install_time_doctor():
     def install_time_doctor():
         cmd_string = "vboxmanage guestcontrol '{0}' run --exe 'C:\\Windows\\System32\\cmd.exe' " \
                "--username IEUser --password Passw0rd! " \
-               "-- cmd.exe /c 'C:/Users/IEUser/timedoctor2-setup-3.0.52-windows.exe --mode unattended'".format(vm_name)
+               "-- cmd.exe /c 'C:\\Users\\IEUser\\installer\\install_td.bat'".format(vm_name)
         return cmd_string
 
     def wait_for_min():
@@ -126,8 +165,6 @@ def task_install_time_doctor():
         'actions': [CmdAction(install_time_doctor), wait_for_min],
         'verbosity': 2,
     }
-
-# Here we might need to login to TimeDoctor to capture user activities
 
 
 def task_open_browser_and_navigate_to_verge():
@@ -303,6 +340,39 @@ def task_enable_network():
             'verbosity': 2,
     }
 
-# TODO: Uninstall the MSI
-# TODO: Check via API if the tracking data was successfully uploaded
-#  https://api2.timedoctor.com/#!/activity/getActivityTimeuse
+def task_uninstall_time_doctor():
+
+    def install_time_doctor():
+        cmd_string = "vboxmanage guestcontrol '{0}' run --exe 'C:\\Windows\\System32\\cmd.exe' " \
+               "--username IEUser --password Passw0rd! " \
+               "-- cmd.exe /c 'C:\\Users\\IEUser\\installer\\uninstall_td.bat'".format(vm_name)
+        return cmd_string
+
+    def wait_for_min():
+        time.sleep(60)
+
+    return {
+        'actions': [CmdAction(install_time_doctor), wait_for_min],
+        'verbosity': 2,
+    }
+
+
+def task_verify_tracking_data_uploaded():
+
+    def verify_tracking_data_uploaded():
+        global td_companyid
+        url = "https://api2.timedoctor.com:443/api/1.0/activity/timeuse"
+
+        params = {
+            'company': td_companyid,
+            'user': td_user,
+            'token': td_token,
+        }
+
+        r = requests.get(url=url, params=params)
+        print(r.text.encode('utf8'))
+
+    return {
+        'actions': [verify_tracking_data_uploaded],
+        'verbosity': 2,
+    }
