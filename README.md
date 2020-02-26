@@ -9,8 +9,6 @@ Find task details [here](/docs/task-description.md)
 
 * [pydoit](https://pydoit.org/install.html)
 
-* [chocolatey](https://chocolatey.org/install)
-
 
 
 ## Steps
