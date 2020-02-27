@@ -9,8 +9,6 @@ Find task details [here](/docs/task-description.md)
 
 * [pydoit](https://pydoit.org/install.html)
 
-* [chocolatey](https://chocolatey.org/install)
-
 
 
 ## Steps
@@ -40,7 +38,7 @@ Find task details [here](/docs/task-description.md)
 * https://packer.io/docs/index.html
 * https://github.com/StefanScherer/packer-windows
 * https://github.com/dylanmei/packer-windows-templates/blob/master/windows_2012_r2/vbox-iso.json
-*https://packer.io/docs/builders/virtualbox-ovf.html#http-directory-configuration
+* https://packer.io/docs/builders/virtualbox-ovf.html#http-directory-configuration
 * https://www.virtualbox.org/manual/UserManual.html#vboxmanage-cmd-overview
 * https://en.jeffprod.com/blog/2019/automating-tasks-in-a-virtualized-os/
 * http://ramblings.narrabilis.com/node/374
