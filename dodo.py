@@ -63,11 +63,28 @@ def task_create_company():
             file.write('[string] $sourceUrl = "https://kwc5w69wa3.execute-api.us-east-1.amazonaws.com/production'
                        '/msi-filename-redirect?hostname=app.staff.com&companyId={0}"\n'.format(td_companyid))
             file.write('[string] $destPath = "C:/Users/IEUser/installer"\n\n')
+            file.write('Write-Host "Downloading msi file to local file system"\n')
+            file.write('Function Get-RedirectedUrl {\n')
+            file.write('	Param (\n')
+            file.write('		[Parameter(Mandatory=$true)]\n')
+            file.write('		[String]$URL\n')
+            file.write('	)\n')
+            file.write('	$request = [System.Net.WebRequest]::Create($url)\n')
+            file.write('	$request.AllowAutoRedirect=$false\n')
+            file.write('	$response=$request.GetResponse()\n\n')
+            file.write('	If ($response.StatusCode -eq "Found"){\n')
+            file.write('		$response.GetResponseHeader("Location")\n')
+            file.write('	}\n')
+            file.write('}\n\n')
+            file.write('$FileName = ([System.IO.Path]::GetFileName((Get-RedirectedUrl "$sourceUrl")))\n')
+            file.write('$FileName -match "(?<Name>sfproc-\d.*.msi)"\n')
+            file.write('Write-Host $Matches.Name\n')
+            file.write('$TempFileName = $Matches.Name\n\n')
             file.write('If(!(test-path $destPath))\n')
             file.write('{\n\tNew-Item -ItemType Directory -Force -Path $destPath\n}\n\n')
-            file.write('Write-Host "Copying Exe file to local file system"\n')
-            file.write('Invoke-WebRequest -Uri $sourceUrl -OutFile $destPath\n\n')
-            file.write('Write-Host "msi file downloaded"\n')
+            file.write('Invoke-WebRequest -uri $sourceUrl -Outfile "$destPath/$TempFileName" \n')
+            file.write('\n')
+            file.write('Write-Host "msi file download completed"\n')
 
     return {
         'actions': [create_com],
@@ -339,6 +356,7 @@ def task_enable_network():
             'actions': [CmdAction(create_cmd_string)],
             'verbosity': 2,
     }
+
 
 def task_uninstall_time_doctor():
 

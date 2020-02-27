@@ -2,7 +2,7 @@
   "builders": [
     {
       "type": "virtualbox-ovf",
-      "source_path": "/Users/ulhas/Downloads/MSEdge-Win10/MSEdge-Win10.ovf",
+      "source_path": "/Users/ulhas/Downloads/MSEdge - Win10/MSEdge - Win10.ovf",
       "headless": true,
       "boot_wait": "1m",
       "vm_name": "windows_10",
