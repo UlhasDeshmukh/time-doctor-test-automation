@@ -77,7 +77,7 @@ def task_create_company():
             file.write('	}\n')
             file.write('}\n\n')
             file.write('$FileName = ([System.IO.Path]::GetFileName((Get-RedirectedUrl "$sourceUrl")))\n')
-            file.write('$FileName -match "(?<Name>sfproc-\d.*.msi)"\n')
+            file.write('$FileName -cmatch "(?<Name>sfproc-\d.*.msi)"\n')
             file.write('Write-Host $Matches.Name\n')
             file.write('$TempFileName = $Matches.Name\n\n')
             file.write('If(!(test-path $destPath))\n')
